@@ -1,0 +1,16 @@
+{
+  "name": "mian-mobiles-pos",
+  "version": "1.0.0",
+  "description": "Offline-first POS and Inventory System for Mian Mobiles",
+  "main": "backend/src/server.js",
+  "scripts": {
+    "start": "node backend/src/server.js",
+    "server": "node backend/src/server.js",
+    "client": "npm --prefix frontend run dev",
+    "build": "npm --prefix frontend run build",
+    "seed": "node backend/src/db/seed.js"
+  },
+  "keywords": ["pos", "mobile-shop", "offline-first", "inventory"],
+  "author": "Mian Mobiles",
+  "license": "ISC"
+}
