@@ -8,16 +8,31 @@ function getNextBillNo() {
   const prefixSetting = db.prepare("SELECT value FROM settings WHERE key = 'invoice_prefix'").get();
   const prefix = prefixSetting ? prefixSetting.value : 'INV-';
 
-  // Find highest numeric suffix in existing sales
-  const lastSale = db.prepare("SELECT bill_no FROM sales ORDER BY id DESC LIMIT 1").get();
-  let nextNum = 1;
-  if (lastSale && lastSale.bill_no) {
-    const match = lastSale.bill_no.match(/(\d+)$/);
-    if (match) {
-      nextNum = parseInt(match[1], 10) + 1;
+  // Find all existing bill numbers to determine the true maximum numeric suffix
+  const sales = db.prepare("SELECT bill_no FROM sales").all();
+  let maxNum = 0;
+  for (const s of sales) {
+    if (s.bill_no) {
+      const match = s.bill_no.match(/(\d+)$/);
+      if (match) {
+        const num = parseInt(match[1], 10);
+        if (!isNaN(num) && num > maxNum) {
+          maxNum = num;
+        }
+      }
     }
   }
-  return `${prefix}${String(nextNum).padStart(4, '0')}`;
+
+  let nextNum = maxNum + 1;
+  let candidate = `${prefix}${String(nextNum).padStart(4, '0')}`;
+
+  // Fail-safe collision check: ensure candidate never collides with any existing record
+  while (db.prepare("SELECT id FROM sales WHERE bill_no = ?").get(candidate)) {
+    nextNum++;
+    candidate = `${prefix}${String(nextNum).padStart(4, '0')}`;
+  }
+
+  return candidate;
 }
 
 // POST /api/sales (One-Click Transactional Sale)
@@ -328,6 +343,16 @@ router.get('/', (req, res) => {
   const totalCount = db.prepare('SELECT COUNT(*) as count FROM sales').get().count;
 
   res.json({ sales, total: totalCount });
+});
+
+// GET /api/sales/next-bill-no (Fetch current sequential invoice number for UI)
+router.get('/next-bill-no', (req, res) => {
+  try {
+    const nextBillNo = getNextBillNo();
+    res.json({ nextBillNo });
+  } catch (err) {
+    res.status(500).json({ error: 'Failed to generate next invoice number' });
+  }
 });
 
 // GET /api/sales/:id (Single sale for viewing/reprinting)

@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "concurrently -n \"BACKEND,FRONTEND\" -c \"blue.bold,green.bold\" \"npm run server\" \"npm run client\"",
     "start": "concurrently -n \"BACKEND,FRONTEND\" -c \"blue.bold,green.bold\" \"npm run server\" \"npm run client\"",
-    "server": "node backend/src/server.js",
+    "server": "node --watch backend/src/server.js",
     "client": "npm --prefix frontend run dev",
     "build": "npm --prefix frontend run build",
     "seed": "node backend/src/db/seed.js"

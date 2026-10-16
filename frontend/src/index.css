@@ -134,231 +134,347 @@
 
 /* ========================================================
    LIGHT MODE THEME
-   High-Contrast Executive POS Palette & Crisp Visibility
+   High-Contrast Executive Retail POS Palette & Crisp Styling
+   Strictly scoped under html.light — Dark Mode is 100% untouched
    ======================================================== */
 html.light {
   color-scheme: light;
 
-  /* Rich contrast slate scale - Soft platinum background makes white cards pop */
-  --color-slate-950: #edf2f7; /* Background: rich soft platinum gray */
-  --color-slate-900: #ffffff; /* Card / container / modal background */
-  --color-slate-800: #f1f5f9; /* Button / sub-container background */
-  --color-slate-700: #cbd5e1; /* Clear, sharp visible borders */
-  --color-slate-600: #94a3b8; /* Muted lines & secondary icons */
-  --color-slate-500: #475569; /* Crisp readable hint & placeholder text */
-  --color-slate-400: #334155; /* Secondary labels - dark & clear */
-  --color-slate-300: #1e293b; /* Body text - high contrast */
-  --color-slate-200: #0f172a; /* Strong headings & titles */
-  --color-slate-100: #020617; /* Pitch dark primary text */
+  /* Executive Light Palette Tokens */
+  --color-slate-950: #F3F6F9; /* Main page background */
+  --color-slate-900: #FFFFFF; /* Cards and panel surfaces */
+  --color-slate-800: #F8FAFC; /* Subtle card headers / sub-surfaces */
+  --color-slate-700: #DCE5EC; /* Subtle clean borders */
+  --color-slate-600: #94A3B8; /* Muted borders & accents */
+  --color-slate-500: #65778A; /* Secondary text & placeholders */
+  --color-slate-400: #475569; /* Secondary labels */
+  --color-slate-300: #293845; /* Body text */
+  --color-slate-200: #172B3A; /* Headings and primary text */
+  --color-slate-100: #172B3A; /* Main text */
 
-  /* High-visibility Emerald Tokens */
-  --color-emerald-400: #047857; /* Deep readable emerald for numbers & text */
-  --color-emerald-500: #059669; /* Rich action emerald */
-  --color-emerald-600: #047857;
-  --color-teal-700: #0f766e;
-  --color-teal-400: #0d9488;
+  /* Primary Action Green Tokens */
+  --color-emerald-400: #079669;
+  --color-emerald-500: #079669;
+  --color-emerald-600: #05825B;
+  --color-teal-700: #123C42;
+  --color-teal-800: #0E3035;
 }
 
-html.light body {
-  background-color: #edf2f7;
-  color: #0f172a;
+html.light body,
+html.light #root,
+html.light .app-container {
+  background-color: #F3F6F9 !important;
+  color: #172B3A !important;
 }
 
-/* Header & Card Elevation in Light Mode */
-html.light header.bg-slate-900 {
-  background-color: #ffffff !important;
-  border-bottom: 2px solid #cbd5e1 !important;
-  box-shadow: 0 4px 10px -2px rgba(15, 23, 42, 0.05) !important;
-}
-
+/* Light Mode Cards & Surfaces */
+html.light .pos-card,
 html.light .bg-slate-900,
 html.light .bg-slate-900\/80,
 html.light .bg-slate-900\/60 {
-  background-color: #ffffff !important;
-  border: 1.5px solid #cbd5e1 !important;
-  box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.06), 0 2px 4px -1px rgba(15, 23, 42, 0.04) !important;
+  background-color: #FFFFFF !important;
+  border-color: #DCE5EC !important;
+  box-shadow: 0 4px 16px rgba(20, 45, 60, 0.07) !important;
+  color: #172B3A;
+}
+
+/* Header in Light Mode */
+html.light header.bg-slate-900 {
+  background-color: #FFFFFF !important;
+  border-bottom: 1px solid #DCE5EC !important;
+  box-shadow: 0 2px 8px rgba(20, 45, 60, 0.04) !important;
+}
+
+html.light header .border-slate-800\/80,
+html.light header .border-slate-800 {
+  border-color: #DCE5EC !important;
+}
+
+/* Navigation Row in Light Mode */
+html.light nav.bg-slate-900\/60,
+html.light .pos-nav-bar {
+  background-color: #123C42 !important;
+  border-bottom: 1px solid #0E3035 !important;
+}
+
+html.light nav button:not(.bg-emerald-500):not(.active-nav-tab) {
+  color: #FFFFFF !important;
+}
+
+html.light nav button:not(.bg-emerald-500):not(.active-nav-tab):hover {
+  background-color: #1A4F57 !important;
+  color: #FFFFFF !important;
+}
+
+html.light nav button.bg-emerald-500,
+html.light nav button.active-nav-tab {
+  background-color: #079669 !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 2px 8px rgba(7, 150, 105, 0.3) !important;
+}
+
+html.light nav button.bg-emerald-500 *,
+html.light nav button.active-nav-tab * {
+  color: #FFFFFF !important;
+}
+
+/* Counter Switcher & Badges in Top Header */
+html.light .counter-pill {
+  background-color: #FFFFFF !important;
+  border: 1px solid #DCE5EC !important;
+  color: #172B3A !important;
+}
+
+html.light .theme-pill {
+  background-color: #FFFFFF !important;
+  border: 1px solid #DCE5EC !important;
+  color: #172B3A !important;
+}
+
+html.light .theme-pill span {
+  color: #172B3A !important;
+  font-weight: 700 !important;
+}
+
+html.light .lan-pill {
+  background-color: #E4F7EF !important;
+  border: 1px solid #A7F3D0 !important;
+  color: #079669 !important;
+}
+
+html.light .lan-pill * {
+  color: #079669 !important;
+}
+
+html.light .user-pill {
+  background-color: #FFFFFF !important;
+  border: 1px solid #DCE5EC !important;
+  color: #172B3A !important;
 }
 
 /* Barcode Scanner Box in Light Mode */
-html.light form .bg-slate-900 {
-  background-color: #ffffff !important;
-  border: 2.5px solid #059669 !important;
-  box-shadow: 0 4px 16px -2px rgba(5, 150, 105, 0.18) !important;
+html.light .pos-search-box {
+  background-color: #FFFFFF !important;
+  border: 1.5px solid #10B981 !important;
+  box-shadow: 0 2px 10px rgba(16, 185, 129, 0.12) !important;
 }
 
-html.light form input {
-  color: #0f172a !important;
+html.light .pos-search-box:focus-within {
+  border-color: #079669 !important;
+  box-shadow: 0 0 0 3px rgba(7, 150, 105, 0.2) !important;
 }
 
-html.light form input::placeholder {
-  color: #475569 !important;
-  font-weight: 600 !important;
+html.light .pos-search-box input,
+html.light input.pos-scan-input {
+  background-color: transparent !important;
+  color: #172B3A !important;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
 }
 
-/* Cart & Data Table Header */
+html.light .pos-search-box input:focus,
+html.light input.pos-scan-input:focus {
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+html.light .pos-search-box input::placeholder,
+html.light input.pos-scan-input::placeholder {
+  color: #65778A !important;
+  font-weight: 500 !important;
+}
+
+/* Cart & Data Table Header in Light Mode */
+html.light .pos-table-header,
 html.light .bg-slate-950\/60,
 html.light .bg-slate-950\/80 {
-  background-color: #f1f5f9 !important;
-  border-bottom: 2px solid #cbd5e1 !important;
+  background-color: #F8FAFC !important;
+  border-color: #DCE5EC !important;
 }
 
+html.light .pos-table-header div,
 html.light .bg-slate-950\/60 > div,
 html.light .bg-slate-950\/80 th {
-  color: #1e293b !important;
-  font-weight: 800 !important;
+  color: #65778A !important;
+  font-weight: 700 !important;
+}
+
+/* Cart Row hover and dividers */
+html.light .divide-slate-800\/60 > div {
+  border-color: #DCE5EC !important;
+}
+
+html.light .divide-slate-800\/60 > div:hover {
+  background-color: #F8FAFC !important;
+}
+
+/* Quantity stepper container in table */
+html.light .qty-stepper {
+  background-color: #FFFFFF !important;
+  border: 1px solid #DCE5EC !important;
+}
+
+html.light .qty-stepper button {
+  color: #65778A !important;
+}
+
+html.light .qty-stepper button:hover {
+  background-color: #F1F5F9 !important;
+  color: #172B3A !important;
+}
+
+html.light .qty-stepper span {
+  color: #172B3A !important;
 }
 
 /* Light mode input fields & selects */
-html.light input:not([type="checkbox"]):not([type="radio"]),
+html.light input:not([type="checkbox"]):not([type="radio"]):not(.pos-scan-input),
 html.light select,
 html.light textarea {
-  background-color: #ffffff !important;
-  color: #0f172a !important;
-  border: 1.5px solid #cbd5e1 !important;
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04);
-  font-weight: 600;
+  background-color: #FFFFFF !important;
+  color: #172B3A !important;
+  border: 1.5px solid #DCE5EC !important;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.02);
+  font-weight: 500;
 }
 
 html.light input:focus,
 html.light select:focus,
 html.light textarea:focus {
-  border-color: #059669 !important;
+  border-color: #079669 !important;
   outline: none !important;
-  box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.2) !important;
+  box-shadow: 0 0 0 3px rgba(7, 150, 105, 0.18) !important;
 }
 
 html.light input::placeholder,
 html.light textarea::placeholder {
-  color: #64748b !important;
-  font-weight: 500 !important;
+  color: #65778A !important;
+  font-weight: 400 !important;
   opacity: 1 !important;
 }
 
-/* Payment Method Buttons */
-html.light .grid-cols-2 button {
-  border: 1.5px solid #cbd5e1 !important;
-  background-color: #ffffff !important;
-  color: #1e293b !important;
+/* Payment Method Buttons in Light Mode */
+html.light .pos-payment-btn {
+  background-color: #FFFFFF !important;
+  border: 1.5px solid #DCE5EC !important;
+  color: #172B3A !important;
+  font-weight: 600 !important;
+  box-shadow: 0 1px 2px rgba(20, 45, 60, 0.03) !important;
+}
+
+html.light .pos-payment-btn:hover:not(.is-selected) {
+  background-color: #F8FAFC !important;
+  border-color: #CBD5E1 !important;
+}
+
+html.light .pos-payment-btn.is-selected {
+  background-color: #E4F7EF !important;
+  border: 2px solid #079669 !important;
+  color: #065F46 !important;
   font-weight: 700 !important;
+  box-shadow: 0 2px 8px rgba(7, 150, 105, 0.15) !important;
 }
 
-html.light .grid-cols-2 button:hover {
-  background-color: #f8fafc !important;
-  border-color: #94a3b8 !important;
+html.light .pos-payment-btn.is-selected svg {
+  color: #079669 !important;
 }
 
-html.light .grid-cols-2 button.border-emerald-500,
-html.light .grid-cols-2 button[class*="bg-emerald-500/20"] {
-  background-color: #ecfdf5 !important;
-  border: 2px solid #059669 !important;
-  color: #047857 !important;
-  box-shadow: 0 4px 10px rgba(5, 150, 105, 0.15) !important;
-}
-
-html.light .grid-cols-2 button.border-emerald-500 svg,
-html.light .grid-cols-2 button[class*="bg-emerald-500/20"] svg {
-  color: #059669 !important;
-  stroke-width: 2.5;
-}
-
-/* Summary Numbers & Total */
+/* Summary Numbers & Total in Light Mode */
+html.light .pos-total-amount,
 html.light .text-2xl.text-emerald-400 {
-  color: #047857 !important;
+  color: #079669 !important;
   font-weight: 900 !important;
 }
 
-/* Pay & Print Button */
+/* Pay & Print Button in Light Mode */
+html.light .pos-pay-print-btn,
 html.light button.bg-gradient-to-r.from-emerald-500 {
-  background: linear-gradient(135deg, #059669 0%, #0d9488 100%) !important;
-  color: #ffffff !important;
-  box-shadow: 0 8px 20px -4px rgba(5, 150, 105, 0.35) !important;
-  font-weight: 900 !important;
+  background: #079669 !important;
+  color: #FFFFFF !important;
+  box-shadow: 0 4px 14px rgba(7, 150, 105, 0.3) !important;
+  font-weight: 800 !important;
 }
 
+html.light .pos-pay-print-btn:hover:not(:disabled),
+html.light button.bg-gradient-to-r.from-emerald-500:hover:not(:disabled) {
+  background: #06835B !important;
+}
+
+html.light .pos-pay-print-btn *,
 html.light button.bg-gradient-to-r.from-emerald-500 * {
-  color: #ffffff !important;
-}
-
-/* Top Navbar Badges in Light Mode */
-html.light button[title*="Dark Mode"] {
-  background-color: #fef3c7 !important;
-  border: 1.5px solid #fde68a !important;
-  color: #92400e !important;
-}
-
-html.light button[title*="LAN"] {
-  background-color: #ecfdf5 !important;
-  border: 1.5px solid #a7f3d0 !important;
-  color: #047857 !important;
-}
-
-html.light button[title*="LAN"] * {
-  color: #047857 !important;
-}
-
-html.light nav button:not(.bg-emerald-500) {
-  color: #334155 !important;
-  font-weight: 700 !important;
-}
-
-html.light nav button:not(.bg-emerald-500):hover {
-  background-color: #e2e8f0 !important;
-  color: #0f172a !important;
-}
-
-html.light nav button.bg-emerald-500 {
-  background-color: #059669 !important;
-  color: #ffffff !important;
-  box-shadow: 0 4px 12px -2px rgba(5, 150, 105, 0.3) !important;
-}
-
-html.light nav button.bg-emerald-500 * {
-  color: #ffffff !important;
+  color: #FFFFFF !important;
 }
 
 /* Modals in Light Mode */
 html.light .bg-slate-900.border-slate-800 {
-  background-color: #ffffff !important;
-  border: 1.5px solid #cbd5e1 !important;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.2) !important;
+  background-color: #FFFFFF !important;
+  border: 1px solid #DCE5EC !important;
+  box-shadow: 0 20px 40px -8px rgba(20, 45, 60, 0.18) !important;
 }
 
-/* Overriding direct text-white when inside light containers */
-html.light .text-white:not(button):not(button *):not([class*="bg-emerald"]):not([class*="bg-blue"]):not([class*="bg-rose"]):not([class*="bg-amber"]):not([class*="bg-gradient"]) {
-  color: #0f172a !important;
+/* Cart Footer Shortcuts */
+html.light .pos-footer-bar {
+  background-color: #F8FAFC !important;
+  border-top: 1px solid #DCE5EC !important;
+  color: #65778A !important;
 }
 
-/* Action button text colors */
-html.light .bg-emerald-500,
-html.light .bg-emerald-600,
-html.light .bg-blue-600,
-html.light .bg-blue-700,
-html.light .bg-rose-500,
-html.light .bg-rose-600 {
-  color: #ffffff !important;
+html.light .pos-shortcut-badge {
+  background-color: #EBF1F6 !important;
+  border: 1px solid #DCE5EC !important;
+  color: #172B3A !important;
+}
+
+/* Text overrides in Light Mode containers */
+html.light .text-white:not(button):not(button *):not([class*="bg-emerald"]):not([class*="bg-blue"]):not([class*="bg-rose"]):not([class*="bg-amber"]):not([class*="badge-white"]):not(.active-nav-tab):not(.active-nav-tab *) {
+  color: #172B3A !important;
+}
+
+html.light .text-slate-100 {
+  color: #172B3A !important;
+}
+
+html.light .text-slate-200 {
+  color: #172B3A !important;
+}
+
+html.light .text-slate-300 {
+  color: #293845 !important;
+}
+
+html.light .text-slate-400 {
+  color: #65778A !important;
+}
+
+html.light .text-slate-500 {
+  color: #65778A !important;
 }
 
 /* Light Mode Scrollbars */
 html.light ::-webkit-scrollbar-track {
-  background: #edf2f7;
+  background: #F3F6F9;
 }
 html.light ::-webkit-scrollbar-thumb {
-  background: #cbd5e1;
+  background: #DCE5EC;
+  border-radius: 4px;
 }
 html.light ::-webkit-scrollbar-thumb:hover {
-  background: #94a3b8;
+  background: #CBD5E1;
 }
 
 /* Glass styling in light mode */
 html.light .glass-panel {
-  background: rgba(255, 255, 255, 0.95) !important;
-  border: 1.5px solid #cbd5e1 !important;
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.06) !important;
+  background: rgba(255, 255, 255, 0.96) !important;
+  border: 1px solid #DCE5EC !important;
+  box-shadow: 0 8px 24px -4px rgba(20, 45, 60, 0.08) !important;
 }
 
 html.light .glass-card {
   background: rgba(255, 255, 255, 0.98) !important;
-  border: 1.5px solid #cbd5e1 !important;
-  box-shadow: 0 4px 12px -2px rgba(0, 0, 0, 0.05) !important;
+  border: 1px solid #DCE5EC !important;
+  box-shadow: 0 4px 14px rgba(20, 45, 60, 0.06) !important;
 }
+
 

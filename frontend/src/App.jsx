@@ -22,7 +22,7 @@ export default function App() {
   });
 
   const [theme, setTheme] = useState(() => {
-    return localStorage.getItem('mian_mobiles_theme') || 'dark';
+    return localStorage.getItem('mian_mobiles_theme') || 'light';
   });
 
   useEffect(() => {
@@ -68,7 +68,7 @@ export default function App() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-emerald-500 selection:text-slate-950">
+    <div className="app-container min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-emerald-500 selection:text-slate-950">
       {/* Top Navbar */}
       <Navbar
         currentView={currentView}

@@ -18,7 +18,8 @@ import {
   Phone,
   Tag,
   DollarSign,
-  Receipt as ReceiptIcon
+  Receipt as ReceiptIcon,
+  Check
 } from 'lucide-react';
 import { api } from '../api';
 import { playScanBeep, playErrorBuzzer, playSuccessChime } from '../utils/audio';
@@ -51,6 +52,22 @@ export default function PosScreen({ user, counterName }) {
   const [cashAmount, setCashAmount] = useState('');
   const [onlineAmount, setOnlineAmount] = useState('');
   const [notes, setNotes] = useState('');
+  const [currentBillNo, setCurrentBillNo] = useState('');
+
+  const fetchNextBillNo = async () => {
+    try {
+      const res = await api.get('/sales/next-bill-no');
+      if (res && res.nextBillNo) {
+        setCurrentBillNo(res.nextBillNo);
+      }
+    } catch (e) {
+      // Fallback
+    }
+  };
+
+  useEffect(() => {
+    fetchNextBillNo();
+  }, []);
   
   // Modals
   const [showSearchModal, setShowSearchModal] = useState(false);
@@ -451,6 +468,7 @@ export default function PosScreen({ user, counterName }) {
       setCustomerPhone('');
       setCashAmount('');
       setOnlineAmount('');
+      fetchNextBillNo();
 
       // Auto trigger print after brief render delay
       setTimeout(() => {
@@ -466,14 +484,14 @@ export default function PosScreen({ user, counterName }) {
   };
 
   return (
-    <div className="flex-1 flex flex-col lg:flex-row gap-4 p-4 max-w-[1600px] mx-auto w-full">
+    <div className="flex-1 flex flex-col lg:flex-row gap-3.5 p-3.5 max-w-[1600px] mx-auto w-full lg:h-[calc(100vh-86px)] min-h-0">
       {/* LEFT COLUMN: Scan Banner, Cart Table, Shortcuts (Width: ~65%) */}
-      <div className="flex-1 flex flex-col gap-3 min-w-0">
+      <div className="flex-1 flex flex-col gap-3 min-w-0 h-full">
         {/* Fast Scanner Input Banner */}
-        <form onSubmit={handleScanSubmit} className="relative">
-          <div className="flex items-center gap-2 bg-slate-900 border-2 border-emerald-500/80 rounded-2xl p-2.5 shadow-xl shadow-emerald-500/10 focus-within:border-emerald-400 focus-within:shadow-emerald-500/20 transition-all">
-            <div className="p-2.5 bg-emerald-500 text-slate-950 rounded-xl font-bold flex items-center justify-center animate-pulse">
-              <Scan className="w-5 h-5" />
+        <form onSubmit={handleScanSubmit} className="relative shrink-0">
+          <div className="flex items-center gap-2.5 bg-slate-900 border-2 border-emerald-500/80 rounded-2xl p-2 shadow-sm pos-search-box focus-within:border-emerald-500 transition-all">
+            <div className="p-2.5 bg-[#079669] text-white rounded-xl font-bold flex items-center justify-center shrink-0">
+              <Scan className="w-5 h-5 stroke-[2.2]" />
             </div>
             <input
               ref={scanInputRef}
@@ -481,12 +499,12 @@ export default function PosScreen({ user, counterName }) {
               value={scanInput}
               onChange={(e) => setScanInput(e.target.value)}
               placeholder="SCAN BARCODE OR PHONE IMEI (or type & press Enter)..."
-              className="flex-1 bg-transparent text-slate-100 placeholder:text-slate-500 font-mono font-semibold text-base focus:outline-none px-2"
+              className="pos-scan-input flex-1 bg-transparent text-slate-100 placeholder:text-slate-500 font-mono font-medium text-sm md:text-base focus:outline-none px-2 border-0 outline-none shadow-none ring-0"
             />
             <button
               type="button"
               onClick={() => setShowSearchModal(true)}
-              className="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-emerald-400 rounded-xl font-semibold text-xs flex items-center gap-1.5 transition-colors"
+              className="px-4 py-2 bg-[#079669] hover:bg-[#06835B] text-white rounded-xl font-semibold text-xs flex items-center gap-1.5 transition-colors shrink-0 shadow-sm cursor-pointer"
             >
               <Search className="w-4 h-4" />
               <span>Search (F2)</span>
@@ -496,53 +514,67 @@ export default function PosScreen({ user, counterName }) {
 
         {/* Feedback Alert Bar */}
         {feedbackMsg && (
-          <div className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center justify-between transition-all animate-in fade-in ${
+          <div className={`px-4 py-2 rounded-xl text-xs font-semibold flex items-center justify-between shrink-0 transition-all animate-in fade-in ${
             feedbackMsg.type === 'error' ? 'bg-rose-500/20 border border-rose-500/40 text-rose-300' : 'bg-emerald-500/20 border border-emerald-500/40 text-emerald-300'
           }`}>
             <span>{feedbackMsg.text}</span>
-            <button onClick={() => setFeedbackMsg(null)} className="text-slate-400 hover:text-white">✕</button>
+            <button onClick={() => setFeedbackMsg(null)} className="text-slate-400 hover:text-white cursor-pointer">✕</button>
           </div>
         )}
 
         {/* Cart Items Table */}
-        <div className="flex-1 bg-slate-900/80 border border-slate-800 rounded-2xl flex flex-col overflow-hidden shadow-xl min-h-[360px]">
+        <div className="flex-1 bg-slate-900/80 border border-slate-800 rounded-2xl flex flex-col overflow-hidden shadow-xl min-h-[300px] pos-card">
           {/* Table Header */}
-          <div className="px-5 py-3 border-b border-slate-800 bg-slate-950/60 flex items-center gap-3 text-xs font-bold text-slate-400 uppercase tracking-wider">
+          <div className="px-4 py-2.5 border-b border-slate-800 bg-slate-950/60 flex items-center gap-3 text-xs font-bold text-slate-400 uppercase tracking-wider pos-table-header shrink-0">
+            <div className="w-8 text-center shrink-0">#</div>
             <div className="flex-1 min-w-0">Item Details</div>
             <div className="w-28 text-center shrink-0">Quantity</div>
             <div className="w-28 text-right shrink-0">Unit Price</div>
-            <div className="w-28 text-right shrink-0">Total</div>
-            <div className="w-12 text-center shrink-0">Action</div>
+            <div className="w-28 text-right shrink-0">Total Amount</div>
+            <div className="w-14 text-center shrink-0">Action</div>
           </div>
 
-          {/* Table Body */}
+          {/* Table Body (Scrolls inside its own card) */}
           <div className="flex-1 overflow-y-auto divide-y divide-slate-800/60">
             {cart.length === 0 ? (
-              <div className="h-full flex flex-col items-center justify-center p-8 text-slate-500">
-                <Scan className="w-16 h-16 stroke-1 text-slate-600 mb-3 animate-bounce" />
-                <p className="font-semibold text-base text-slate-400">Cart is Empty</p>
-                <p className="text-xs text-slate-500 mt-1">Scan any accessory barcode or phone IMEI to start selling</p>
+              <div className="h-full flex flex-col items-center justify-center p-8 text-center min-h-[220px]">
+                <div className="relative mb-3 flex items-center justify-center">
+                  <div className="w-20 h-20 rounded-full bg-emerald-500/10 flex items-center justify-center">
+                    <svg className="w-10 h-10 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <circle cx="8" cy="21" r="1"/>
+                      <circle cx="19" cy="21" r="1"/>
+                      <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"/>
+                    </svg>
+                  </div>
+                  {/* Motion indicator accents */}
+                  <div className="absolute -top-1 -right-1 w-2.5 h-1 bg-emerald-400 rounded-full rotate-45" />
+                  <div className="absolute top-2 -left-2 w-2 h-1 bg-emerald-400 rounded-full -rotate-45" />
+                  <div className="absolute -bottom-1 left-2 w-2 h-1 bg-emerald-400 rounded-full -rotate-12" />
+                </div>
+                <p className="font-bold text-base text-slate-200">Cart is Empty</p>
+                <p className="text-xs text-slate-500 mt-1 max-w-sm">Scan any barcode or phone IMEI to start selling</p>
               </div>
             ) : (
               cart.map((item, idx) => (
-                <div key={idx} className="px-5 py-3 flex items-center gap-3 hover:bg-slate-800/30 transition-colors">
+                <div key={idx} className="px-4 py-2.5 flex items-center gap-3 hover:bg-slate-800/30 transition-colors">
+                  <div className="w-8 text-center font-mono text-xs text-slate-400 shrink-0 font-bold">{idx + 1}</div>
                   {/* Name, Brand & IMEI Details */}
                   <div className="flex-1 min-w-0">
                     <div className="font-bold text-slate-100 text-sm truncate">{item.name}</div>
-                    <div className="flex items-center gap-2 mt-1">
+                    <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                       {item.brand && (
                         <span className="text-[11px] text-slate-400 font-medium">{item.brand}</span>
                       )}
                       {item.track_imei === 1 ? (
-                        <span className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold">
+                        <span className="inline-flex items-center gap-1 text-[11px] font-mono px-2 py-0.5 rounded-md bg-emerald-500/15 text-emerald-500 border border-emerald-500/30 font-bold">
                           <Smartphone className="w-3 h-3" />
                           IMEI: {item.imei1}
                         </span>
                       ) : (
-                        <span className="text-[10px] text-slate-500 font-semibold uppercase">Accessory</span>
+                        <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider">Accessory</span>
                       )}
                       {item.warranty_days > 0 && (
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/10 text-amber-500 border border-amber-500/20 font-semibold">
                           {item.warranty_days}d War.
                         </span>
                       )}
@@ -550,25 +582,25 @@ export default function PosScreen({ user, counterName }) {
                   </div>
 
                   {/* Quantity Stepper */}
-                  <div className="w-28 flex items-center justify-center">
+                  <div className="w-28 flex items-center justify-center shrink-0">
                     {item.track_imei === 1 ? (
                       <span className="font-mono font-bold text-slate-300 text-sm">1 unit</span>
                     ) : (
-                      <div className="flex items-center bg-slate-950 border border-slate-800 rounded-lg p-0.5">
+                      <div className="flex items-center bg-slate-950 border border-slate-800 rounded-lg p-0.5 qty-stepper">
                         <button
                           type="button"
                           onClick={() => updateQty(idx, -1)}
-                          className="p-1 hover:bg-slate-800 text-slate-400 hover:text-white rounded"
+                          className="p-1 hover:bg-slate-800 text-slate-400 hover:text-white rounded cursor-pointer"
                         >
                           <Minus className="w-3.5 h-3.5" />
                         </button>
-                        <span className="w-8 text-center font-mono font-bold text-sm text-white">
+                        <span className="w-7 text-center font-mono font-bold text-xs text-white">
                           {item.qty}
                         </span>
                         <button
                           type="button"
                           onClick={() => updateQty(idx, 1)}
-                          className="p-1 hover:bg-slate-800 text-slate-400 hover:text-white rounded"
+                          className="p-1 hover:bg-slate-800 text-slate-400 hover:text-white rounded cursor-pointer"
                         >
                           <Plus className="w-3.5 h-3.5" />
                         </button>
@@ -577,20 +609,20 @@ export default function PosScreen({ user, counterName }) {
                   </div>
 
                   {/* Unit Price */}
-                  <div className="w-28 text-right font-mono text-sm text-slate-300">
+                  <div className="w-28 text-right font-mono text-xs md:text-sm text-slate-300 shrink-0">
                     Rs. {item.price.toLocaleString()}
                   </div>
 
                   {/* Line Total */}
-                  <div className="w-28 text-right font-mono font-bold text-sm text-emerald-400">
+                  <div className="w-28 text-right font-mono font-bold text-xs md:text-sm text-emerald-400 pos-total-amount shrink-0">
                     Rs. {((item.price * item.qty) - (item.discount || 0)).toLocaleString()}
                   </div>
 
                   {/* Delete */}
-                  <div className="w-12 text-center">
+                  <div className="w-14 text-center shrink-0">
                     <button
                       onClick={() => removeItem(idx)}
-                      className="p-1.5 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors"
+                      className="p-1.5 text-slate-400 hover:text-rose-500 hover:bg-rose-500/10 rounded-lg transition-colors cursor-pointer"
                       title="Remove item"
                     >
                       <Trash2 className="w-4 h-4" />
@@ -602,65 +634,99 @@ export default function PosScreen({ user, counterName }) {
           </div>
 
           {/* Quick Shortcuts Bar */}
-          <div className="px-5 py-2.5 bg-slate-950/80 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
-            <div className="flex items-center gap-3">
-              <span>Items in cart: <strong className="text-white">{cart.length}</strong></span>
-              <span>•</span>
-              <button onClick={() => setShowSearchModal(true)} className="hover:text-emerald-400">
-                <kbd className="bg-slate-800 px-1.5 py-0.5 rounded text-[10px] text-slate-300">F2</kbd> Search
+          <div className="px-4 py-2 bg-slate-950/80 border-t border-slate-800 flex flex-wrap items-center justify-between text-xs text-slate-400 pos-footer-bar shrink-0 gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-semibold text-slate-300">Quick Shortcuts:</span>
+              <button onClick={() => setShowSearchModal(true)} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md pos-shortcut-badge hover:text-emerald-500 cursor-pointer text-[11px] font-semibold">
+                <kbd className="font-mono font-bold">F2</kbd> Search
               </button>
-              <button onClick={handleHoldBill} className="hover:text-amber-400">
-                <kbd className="bg-slate-800 px-1.5 py-0.5 rounded text-[10px] text-slate-300">F8</kbd> Hold Bill
+              <button onClick={handleHoldBill} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md pos-shortcut-badge hover:text-amber-500 cursor-pointer text-[11px] font-semibold">
+                <kbd className="font-mono font-bold">F8</kbd> Hold Bill
               </button>
-              <button onClick={fetchHeldBills} className="hover:text-blue-400">
-                <kbd className="bg-slate-800 px-1.5 py-0.5 rounded text-[10px] text-slate-300">F9</kbd> Resume Bill
+              <button onClick={fetchHeldBills} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-md pos-shortcut-badge hover:text-blue-500 cursor-pointer text-[11px] font-semibold">
+                <kbd className="font-mono font-bold">F9</kbd> Resume Bill
               </button>
             </div>
-            {cart.length > 0 && (
-              <button
-                onClick={clearCart}
-                className="text-rose-400 hover:text-rose-300 text-xs font-semibold"
-              >
-                Clear Cart
-              </button>
-            )}
+            <div className="flex items-center gap-3">
+              <span>Items in cart: <strong className="text-white font-mono font-bold">{cart.length}</strong></span>
+              {cart.length > 0 && (
+                <button
+                  onClick={clearCart}
+                  className="text-rose-400 hover:text-rose-500 text-xs font-bold cursor-pointer"
+                >
+                  Clear Cart
+                </button>
+              )}
+            </div>
           </div>
         </div>
       </div>
 
       {/* RIGHT COLUMN: Customer, Payment, Summary & Pay & Print Button (Width: ~35%) */}
-      <div className="w-full lg:w-[420px] flex flex-col gap-4">
+      <div className="w-full lg:w-[400px] flex flex-col gap-3 shrink-0 lg:h-full justify-between min-h-0">
         {/* Customer Box */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl">
-          <div className="flex items-center justify-between mb-3 text-xs font-bold text-slate-400 uppercase tracking-wider">
-            <span className="flex items-center gap-1.5">
-              <User className="w-3.5 h-3.5 text-emerald-400" />
-              Customer Details
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 shadow-xl pos-card shrink-0">
+          <div className="flex items-center justify-between mb-2.5 text-xs font-bold text-slate-400 uppercase tracking-wider">
+            <span className="flex items-center gap-1.5 text-slate-200">
+              <User className="w-3.5 h-3.5 text-emerald-500" />
+              CUSTOMER DETAILS
             </span>
+            {currentBillNo && (
+              <span className="font-mono text-[11px] font-black text-emerald-600 dark:text-emerald-400 bg-emerald-500/15 border border-emerald-500/30 px-2 py-0.5 rounded-md tracking-wider">
+                INV: {currentBillNo}
+              </span>
+            )}
           </div>
-          <div className="space-y-2.5">
-            <input
-              type="text"
-              value={customerName}
-              onChange={(e) => setCustomerName(e.target.value)}
-              placeholder="Guest"
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-emerald-500"
-            />
-            <input
-              type="text"
-              value={customerPhone}
-              onChange={handlePhoneChange}
-              placeholder="0300-0000000"
-              maxLength={12}
-              className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-sm text-slate-100 placeholder:text-slate-500 font-mono focus:outline-none focus:border-emerald-500"
-            />
+          <div className="space-y-2">
+            <div className="relative flex items-center">
+              <User className="w-4 h-4 text-slate-400 absolute left-3 pointer-events-none" />
+              <input
+                type="text"
+                value={customerName}
+                onChange={(e) => setCustomerName(e.target.value)}
+                placeholder="Guest"
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-8 py-2 text-xs md:text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 font-medium"
+              />
+              {customerName && (
+                <button
+                  type="button"
+                  onClick={() => setCustomerName('')}
+                  className="absolute right-2.5 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+                  title="Clear"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+            <div className="relative flex items-center">
+              <Phone className="w-4 h-4 text-slate-400 absolute left-3 pointer-events-none" />
+              <input
+                type="text"
+                value={customerPhone}
+                onChange={handlePhoneChange}
+                placeholder="0300-0000000"
+                maxLength={12}
+                className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-8 py-2 text-xs md:text-sm text-slate-100 placeholder:text-slate-500 font-mono focus:outline-none focus:border-emerald-500 font-medium"
+              />
+              {customerPhone && (
+                <button
+                  type="button"
+                  onClick={() => setCustomerPhone('')}
+                  className="absolute right-2.5 text-slate-400 hover:text-slate-600 p-0.5 cursor-pointer"
+                  title="Clear"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
         {/* Payment Methods */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl">
-          <div className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
-            Payment Method
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 shadow-xl pos-card shrink-0">
+          <div className="flex items-center gap-1.5 text-xs font-bold text-slate-200 uppercase tracking-wider mb-2.5">
+            <CreditCard className="w-3.5 h-3.5 text-emerald-500" />
+            PAYMENT METHOD
           </div>
           <div className="grid grid-cols-2 gap-2">
             {[
@@ -676,14 +742,15 @@ export default function PosScreen({ user, counterName }) {
                   key={m.id}
                   type="button"
                   onClick={() => setPaymentMethod(m.id)}
-                  className={`py-2.5 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-2 transition-all ${
+                  className={`py-2 px-3 rounded-xl border text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer pos-payment-btn ${
                     isSelected
-                      ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300 shadow-lg shadow-emerald-500/10'
+                      ? 'bg-emerald-500/20 border-emerald-500 text-emerald-300 shadow-md is-selected'
                       : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:border-slate-700'
                   }`}
                 >
-                  <Icon className="w-4 h-4" />
-                  <span>{m.label}</span>
+                  <Icon className="w-4 h-4 shrink-0" />
+                  <span className="truncate">{m.label}</span>
+                  {isSelected && <Check className="w-3.5 h-3.5 stroke-[3] text-emerald-600 shrink-0" />}
                 </button>
               );
             })}
@@ -691,9 +758,9 @@ export default function PosScreen({ user, counterName }) {
 
           {/* Mixed payment split inputs */}
           {paymentMethod === 'Mixed' && (
-            <div className="mt-3 p-3 bg-slate-950 rounded-xl border border-slate-800 space-y-2">
+            <div className="mt-2.5 p-2.5 bg-slate-950 rounded-xl border border-slate-800 space-y-2">
               <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-400 w-16">Cash:</span>
+                <span className="text-xs text-slate-400 w-14 shrink-0">Cash:</span>
                 <input
                   type="number"
                   value={cashAmount}
@@ -703,7 +770,7 @@ export default function PosScreen({ user, counterName }) {
                 />
               </div>
               <div className="flex items-center gap-2">
-                <span className="text-xs text-slate-400 w-16">Online:</span>
+                <span className="text-xs text-slate-400 w-14 shrink-0">Online:</span>
                 <input
                   type="number"
                   value={onlineAmount}
@@ -717,13 +784,19 @@ export default function PosScreen({ user, counterName }) {
         </div>
 
         {/* Bill Totals Summary */}
-        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col gap-3">
-          <div className="flex items-center justify-between text-sm text-slate-400">
+        <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col gap-2.5 pos-card shrink-0">
+          <div className="flex items-center justify-between text-xs text-slate-400 border-b border-slate-800/60 pb-1.5">
+            <span className="font-semibold text-slate-400">Current Invoice</span>
+            <span className="font-mono font-black text-emerald-600 dark:text-emerald-400 text-xs tracking-wider">
+              {currentBillNo || 'INV-0005'}
+            </span>
+          </div>
+          <div className="flex items-center justify-between text-xs md:text-sm text-slate-400">
             <span>Subtotal</span>
-            <span className="font-mono font-semibold text-slate-200">Rs. {subtotal.toLocaleString()}</span>
+            <span className="font-mono font-bold text-slate-200">Rs. {subtotal.toLocaleString()}</span>
           </div>
 
-          <div className="flex items-center justify-between text-sm text-slate-400">
+          <div className="flex items-center justify-between text-xs md:text-sm text-slate-400">
             <span>Discount (Rs.)</span>
             <input
               type="number"
@@ -731,33 +804,36 @@ export default function PosScreen({ user, counterName }) {
               value={discountAmount}
               onChange={(e) => setDiscountAmount(e.target.value)}
               placeholder="0"
-              className="w-28 bg-slate-950 border border-slate-800 rounded-lg px-2.5 py-1 text-right text-sm font-mono text-white focus:outline-none focus:border-emerald-500"
+              className="w-24 bg-slate-950 border border-slate-800 rounded-lg px-2 py-1 text-right text-xs md:text-sm font-mono text-white focus:outline-none focus:border-emerald-500 font-bold"
             />
           </div>
 
-          <div className="border-t border-slate-800 pt-3 flex items-baseline justify-between">
-            <span className="text-base font-extrabold text-white">TOTAL</span>
-            <span className="text-2xl font-black font-mono text-emerald-400">
+          <div className="border-t border-slate-800 pt-2 flex items-baseline justify-between">
+            <span className="text-base font-extrabold text-slate-200">TOTAL</span>
+            <span className="text-2xl font-black font-mono text-emerald-500 pos-total-amount">
               Rs. {total.toLocaleString()}
             </span>
           </div>
 
           {/* Optional notes */}
-          <input
-            type="text"
-            value={notes}
-            onChange={(e) => setNotes(e.target.value)}
-            placeholder="Sale note / reference (optional)..."
-            className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-300 placeholder:text-slate-600 focus:outline-none focus:border-slate-700 mt-1"
-          />
+          <div className="relative flex items-center">
+            <ReceiptIcon className="w-3.5 h-3.5 text-slate-400 absolute left-3 pointer-events-none" />
+            <input
+              type="text"
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              placeholder="Sale note / reference (optional)..."
+              className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-8 pr-3 py-1.5 text-xs text-slate-300 placeholder:text-slate-500 focus:outline-none focus:border-slate-700"
+            />
+          </div>
 
-          {/* ONE-CLICK PAY & PRINT BUTTON */}
+          {/* ONE-CLICK PAY & PRINT BUTTON (PINNED & PROMINENT) */}
           <button
             onClick={handlePayAndPrint}
             disabled={isProcessing || cart.length === 0}
-            className="w-full py-4 mt-2 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 active:scale-[0.98] disabled:opacity-50 text-slate-950 font-black rounded-2xl shadow-xl shadow-emerald-500/25 text-lg flex items-center justify-center gap-3 transition-all cursor-pointer"
+            className="w-full py-3.5 mt-1 bg-[#079669] hover:bg-[#06835B] active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed text-white font-extrabold rounded-xl shadow-lg text-base flex items-center justify-center gap-2.5 transition-all cursor-pointer pos-pay-print-btn"
           >
-            <Printer className="w-6 h-6 stroke-[2.5]" />
+            <Printer className="w-5 h-5 stroke-[2.5]" />
             <span>PAY & PRINT (F4)</span>
           </button>
         </div>
