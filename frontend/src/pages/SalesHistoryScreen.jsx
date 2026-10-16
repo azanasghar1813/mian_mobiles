@@ -309,7 +309,7 @@ export default function SalesHistoryScreen({ user }) {
             </div>
 
             {/* Receipt Preview */}
-            <div className="border border-slate-700 rounded-xl overflow-hidden shadow-2xl bg-white max-h-[60vh] overflow-y-auto w-full flex justify-center">
+            <div className="w-full flex justify-center items-center py-4 bg-slate-950/80 rounded-xl border border-slate-800 max-h-[65vh] overflow-y-auto">
               <Receipt sale={selectedSale} isPreview={true} />
             </div>
 

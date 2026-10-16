@@ -924,7 +924,7 @@ export default function PosScreen({ user, counterName }) {
             <p className="text-xs text-slate-400 mb-4">Receipt generated. If printer did not open, click Print below.</p>
 
             {/* Receipt Preview */}
-            <div className="border border-slate-700 rounded-xl overflow-hidden shadow-2xl bg-white max-h-[60vh] overflow-y-auto">
+            <div className="w-full flex justify-center items-center py-4 bg-slate-950/80 rounded-xl border border-slate-800 max-h-[65vh] overflow-y-auto">
               <Receipt sale={completedSale} isPreview={true} />
             </div>
 

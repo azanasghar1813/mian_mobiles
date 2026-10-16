@@ -9,13 +9,13 @@ export default function Receipt({ sale, isPreview = false }) {
       try {
         JsBarcode(barcodeRef.current, sale.bill_no, {
           format: 'CODE128',
-          width: 1.5,
-          height: 38,
+          width: 1.8,
+          height: 42,
           displayValue: true,
-          fontSize: 11,
+          fontSize: 12,
           font: 'JetBrains Mono',
-          textMargin: 2,
-          margin: 4
+          textMargin: 3,
+          margin: 0
         });
       } catch (e) {
         console.error('Barcode render error:', e);
@@ -44,7 +44,7 @@ export default function Receipt({ sale, isPreview = false }) {
   let hours = createdAt.getHours();
   const ampm = hours >= 12 ? 'PM' : 'AM';
   hours = hours % 12;
-  hours = hours ? hours : 12; // 0 => 12
+  hours = hours ? hours : 12;
   const minutes = String(createdAt.getMinutes()).padStart(2, '0');
   const timeStr = `${hours}:${minutes} ${ampm}`;
   const fullDateTimeStr = `${dateStr} ${timeStr}`;
@@ -58,23 +58,25 @@ export default function Receipt({ sale, isPreview = false }) {
   return (
     <div
       id={isPreview ? undefined : 'thermal-receipt-printable'}
-      className={isPreview ? 'receipt-paper mx-auto' : ''}
+      className={isPreview ? 'receipt-paper' : ''}
       style={{
-        width: '76mm',
+        width: '74mm',
+        maxWidth: '74mm',
+        margin: '0 auto',
         backgroundColor: '#ffffff',
         color: '#000000',
         fontFamily: "'JetBrains Mono', 'Courier New', Courier, monospace",
         fontSize: '11px',
         lineHeight: 1.25,
-        padding: '12px 6px',
+        padding: '14px 10px',
         boxSizing: 'border-box'
       }}
     >
       {/* 1. Header: Logo & Shop Details */}
-      <div style={{ textAlign: 'center', marginBottom: '8px' }}>
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '2px' }}>
-          {/* Exact Logo Silhouette SVG */}
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <div style={{ textAlign: 'center', marginBottom: '8px', width: '100%' }}>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', marginBottom: '3px' }}>
+          {/* Logo Silhouette SVG */}
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
             <rect x="6" y="2" width="12" height="20" rx="2" ry="2" />
             <path d="M11 18h2" />
             <path d="M2 13a10 10 0 0 0 10 9" />
@@ -84,22 +86,22 @@ export default function Receipt({ sale, isPreview = false }) {
             {shopName}
           </span>
         </div>
-        <div style={{ fontSize: '11px', fontWeight: '600', marginBottom: '3px' }}>
+        <div style={{ fontSize: '11px', fontWeight: '700', marginBottom: '3px' }}>
           {shopTagline}
         </div>
-        <div style={{ fontSize: '9.5px', whiteSpace: 'pre-line', lineHeight: 1.2, color: '#222' }}>
+        <div style={{ fontSize: '9.5px', whiteSpace: 'pre-line', lineHeight: 1.25, color: '#222' }}>
           {shopAddress}
         </div>
-        <div style={{ fontSize: '10.5px', fontWeight: '700', marginTop: '2px' }}>
+        <div style={{ fontSize: '10.5px', fontWeight: '700', marginTop: '3px' }}>
           Phone: {shopPhone}
         </div>
       </div>
 
       {/* Dashed Line */}
-      <div style={{ borderTop: '1px dashed #000', margin: '5px 0' }} />
+      <div style={{ borderTop: '1px dashed #000', width: '100%', margin: '6px 0' }} />
 
       {/* 2. Invoice Meta */}
-      <div style={{ fontSize: '10.5px', lineHeight: 1.35 }}>
+      <div style={{ fontSize: '10.5px', lineHeight: 1.35, width: '100%' }}>
         <div style={{ display: 'flex' }}>
           <span style={{ width: '85px' }}>Invoice #</span>
           <span style={{ width: '12px' }}>:</span>
@@ -118,10 +120,10 @@ export default function Receipt({ sale, isPreview = false }) {
       </div>
 
       {/* Dashed Line */}
-      <div style={{ borderTop: '1px dashed #000', margin: '5px 0' }} />
+      <div style={{ borderTop: '1px dashed #000', width: '100%', margin: '6px 0' }} />
 
       {/* 3. Customer Meta */}
-      <div style={{ fontSize: '10.5px', lineHeight: 1.35 }}>
+      <div style={{ fontSize: '10.5px', lineHeight: 1.35, width: '100%' }}>
         <div style={{ display: 'flex' }}>
           <span style={{ width: '85px' }}>Customer</span>
           <span style={{ width: '12px' }}>:</span>
@@ -135,41 +137,42 @@ export default function Receipt({ sale, isPreview = false }) {
       </div>
 
       {/* Dashed Line */}
-      <div style={{ borderTop: '1px dashed #000', margin: '5px 0' }} />
+      <div style={{ borderTop: '1px dashed #000', width: '100%', margin: '6px 0' }} />
 
-      {/* 4. Boxed Items Table */}
+      {/* 4. Boxed Items Table (Exact Full Width 100%) */}
       <table
         style={{
           width: '100%',
           borderCollapse: 'collapse',
           border: '1.5px solid #000',
           fontSize: '10px',
-          margin: '6px 0'
+          margin: '6px 0',
+          tableLayout: 'fixed'
         }}
       >
         <thead>
           <tr style={{ background: '#f3f4f6' }}>
-            <th style={{ border: '1.5px solid #000', padding: '3px 4px', textAlign: 'left' }}>Item</th>
-            <th style={{ border: '1.5px solid #000', padding: '3px 4px', textAlign: 'center', width: '30px' }}>Qty</th>
-            <th style={{ border: '1.5px solid #000', padding: '3px 4px', textAlign: 'right', width: '75px' }}>Total</th>
+            <th style={{ border: '1.5px solid #000', padding: '4px 5px', textAlign: 'left', width: '56%' }}>Item</th>
+            <th style={{ border: '1.5px solid #000', padding: '4px 2px', textAlign: 'center', width: '14%' }}>Qty</th>
+            <th style={{ border: '1.5px solid #000', padding: '4px 5px', textAlign: 'right', width: '30%' }}>Total</th>
           </tr>
         </thead>
         <tbody>
           {sale.items && sale.items.map((item, idx) => (
             <tr key={idx}>
-              <td style={{ border: '1px solid #000', padding: '3px 4px' }}>
+              <td style={{ border: '1px solid #000', padding: '4px 5px', wordBreak: 'break-word' }}>
                 <div style={{ fontWeight: '600' }}>{item.product_name}</div>
                 {item.imei1 && (
-                  <div style={{ fontSize: '8.5px', color: '#111', marginTop: '1px' }}>
+                  <div style={{ fontSize: '8.5px', color: '#111', marginTop: '2px' }}>
                     IMEI: {item.imei1}
                     {item.warranty_until && ` | War: ${item.warranty_until}`}
                   </div>
                 )}
               </td>
-              <td style={{ border: '1px solid #000', padding: '3px 4px', textAlign: 'center', verticalAlign: 'top' }}>
+              <td style={{ border: '1px solid #000', padding: '4px 2px', textAlign: 'center', verticalAlign: 'top' }}>
                 {item.qty}
               </td>
-              <td style={{ border: '1px solid #000', padding: '3px 4px', textAlign: 'right', verticalAlign: 'top', whiteSpace: 'nowrap' }}>
+              <td style={{ border: '1px solid #000', padding: '4px 5px', textAlign: 'right', verticalAlign: 'top', whiteSpace: 'nowrap' }}>
                 {currency} {fmt(item.price * item.qty - (item.discount || 0))}
               </td>
             </tr>
@@ -177,56 +180,56 @@ export default function Receipt({ sale, isPreview = false }) {
         </tbody>
       </table>
 
-      {/* 5. Subtotals & Totals Block */}
-      <div style={{ fontSize: '10.5px', lineHeight: 1.35, marginTop: '4px' }}>
+      {/* 5. Subtotals & Totals Block (Right Aligned Flush with Table) */}
+      <div style={{ fontSize: '10.5px', lineHeight: 1.35, marginTop: '4px', width: '100%' }}>
         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <div style={{ width: '155px', display: 'flex', justifyContent: 'space-between' }}>
+          <div style={{ width: '160px', display: 'flex', justifyContent: 'space-between' }}>
             <span>Subtotal</span>
             <span style={{ width: '10px', textAlign: 'center' }}>:</span>
-            <span style={{ width: '85px', textAlign: 'right' }}>{currency} {fmt(sale.subtotal)}</span>
+            <span style={{ width: '90px', textAlign: 'right' }}>{currency} {fmt(sale.subtotal)}</span>
           </div>
         </div>
         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <div style={{ width: '155px', display: 'flex', justifyContent: 'space-between' }}>
+          <div style={{ width: '160px', display: 'flex', justifyContent: 'space-between' }}>
             <span>Discount</span>
             <span style={{ width: '10px', textAlign: 'center' }}>:</span>
-            <span style={{ width: '85px', textAlign: 'right' }}>{currency} {fmt(sale.discount)}</span>
+            <span style={{ width: '90px', textAlign: 'right' }}>{currency} {fmt(sale.discount)}</span>
           </div>
         </div>
 
         {/* Total Dashed Divider */}
-        <div style={{ borderTop: '1px dashed #000', margin: '4px 0' }} />
+        <div style={{ borderTop: '1px dashed #000', width: '100%', margin: '5px 0' }} />
 
-        <div style={{ display: 'flex', justifyContent: 'flex-end', fontSize: '12.5px', fontWeight: '900' }}>
-          <div style={{ width: '175px', display: 'flex', justifyContent: 'space-between' }}>
+        <div style={{ display: 'flex', justifyContent: 'flex-end', fontSize: '12px', fontWeight: '900' }}>
+          <div style={{ width: '180px', display: 'flex', justifyContent: 'space-between' }}>
             <span>TOTAL</span>
             <span style={{ width: '10px', textAlign: 'center' }}>:</span>
-            <span style={{ width: '100px', textAlign: 'right' }}>{currency} {fmt(sale.total)}</span>
+            <span style={{ width: '105px', textAlign: 'right' }}>{currency} {fmt(sale.total)}</span>
           </div>
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '2px' }}>
-          <div style={{ width: '155px', display: 'flex', justifyContent: 'space-between' }}>
+          <div style={{ width: '160px', display: 'flex', justifyContent: 'space-between' }}>
             <span>Paid</span>
             <span style={{ width: '10px', textAlign: 'center' }}>:</span>
-            <span style={{ width: '85px', textAlign: 'right' }}>{currency} {fmt(sale.paid)}</span>
+            <span style={{ width: '90px', textAlign: 'right' }}>{currency} {fmt(sale.paid)}</span>
           </div>
         </div>
 
         <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-          <div style={{ width: '155px', display: 'flex', justifyContent: 'space-between' }}>
+          <div style={{ width: '160px', display: 'flex', justifyContent: 'space-between' }}>
             <span>Balance</span>
             <span style={{ width: '10px', textAlign: 'center' }}>:</span>
-            <span style={{ width: '85px', textAlign: 'right' }}>{currency} {fmt(sale.balance)}</span>
+            <span style={{ width: '90px', textAlign: 'right' }}>{currency} {fmt(sale.balance)}</span>
           </div>
         </div>
       </div>
 
       {/* Dashed Line */}
-      <div style={{ borderTop: '1px dashed #000', margin: '5px 0' }} />
+      <div style={{ borderTop: '1px dashed #000', width: '100%', margin: '6px 0' }} />
 
       {/* 6. Payment & Status */}
-      <div style={{ fontSize: '10px', lineHeight: 1.35 }}>
+      <div style={{ fontSize: '10px', lineHeight: 1.35, width: '100%' }}>
         <div style={{ display: 'flex' }}>
           <span style={{ width: '105px' }}>Payment Method</span>
           <span style={{ width: '10px' }}>:</span>
@@ -245,19 +248,19 @@ export default function Receipt({ sale, isPreview = false }) {
       </div>
 
       {/* Dashed Line */}
-      <div style={{ borderTop: '1px dashed #000', margin: '6px 0' }} />
+      <div style={{ borderTop: '1px dashed #000', width: '100%', margin: '6px 0' }} />
 
       {/* 7. Footer Thank You */}
-      <div style={{ textAlign: 'center', marginTop: '6px', fontSize: '10.5px' }}>
+      <div style={{ textAlign: 'center', marginTop: '6px', fontSize: '10.5px', width: '100%' }}>
         <div>Thank You for Shopping with</div>
         <div style={{ fontWeight: '900', fontSize: '13px', margin: '2px 0' }}>{shopName}!</div>
         <div style={{ fontSize: '9.5px', marginTop: '2px' }}>— Your Trust Is Our Priority —</div>
         <div style={{ fontSize: '8.5px', color: '#444', marginTop: '4px' }}>— Powered by Mian Mobiles —</div>
       </div>
 
-      {/* 8. Barcode */}
-      <div style={{ textAlign: 'center', marginTop: '6px' }}>
-        <svg ref={barcodeRef} style={{ maxWidth: '100%' }}></svg>
+      {/* 8. Barcode (Centered) */}
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', width: '100%', marginTop: '6px' }}>
+        <svg ref={barcodeRef} style={{ display: 'block', margin: '0 auto', maxWidth: '100%' }}></svg>
       </div>
     </div>
   );
