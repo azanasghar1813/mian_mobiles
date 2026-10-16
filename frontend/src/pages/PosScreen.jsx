@@ -27,8 +27,25 @@ import Receipt from '../components/Receipt';
 export default function PosScreen({ user, counterName }) {
   const [cart, setCart] = useState([]);
   const [scanInput, setScanInput] = useState('');
-  const [customerName, setCustomerName] = useState('Walk-in Customer');
-  const [customerPhone, setCustomerPhone] = useState('--------------');
+  const [customerName, setCustomerName] = useState('');
+  const [customerPhone, setCustomerPhone] = useState('');
+
+  // Auto format Pakistani mobile numbers: 0300-0000000
+  const formatPhoneNumber = (value) => {
+    let raw = value.replace(/\D/g, '');
+    if (raw.startsWith('92') && raw.length > 10) {
+      raw = '0' + raw.slice(2);
+    }
+    raw = raw.slice(0, 11);
+    if (raw.length > 4) {
+      return `${raw.slice(0, 4)}-${raw.slice(4)}`;
+    }
+    return raw;
+  };
+
+  const handlePhoneChange = (e) => {
+    setCustomerPhone(formatPhoneNumber(e.target.value));
+  };
   const [discountAmount, setDiscountAmount] = useState(0);
   const [paymentMethod, setPaymentMethod] = useState('Cash'); // 'Cash', 'Online', 'Mixed', 'Credit'
   const [cashAmount, setCashAmount] = useState('');
@@ -311,6 +328,8 @@ export default function PosScreen({ user, counterName }) {
       setCart([]);
       setDiscountAmount(0);
       setNotes('');
+      setCustomerName('');
+      setCustomerPhone('');
       setFeedbackMsg(null);
     }
   };
@@ -325,7 +344,7 @@ export default function PosScreen({ user, counterName }) {
     try {
       await api.post('/sales/hold', {
         cart,
-        customer_name: customerName,
+        customer_name: customerName.trim() || 'Guest',
         note: notes
       });
       playSuccessChime();
@@ -353,7 +372,7 @@ export default function PosScreen({ user, counterName }) {
     try {
       const parsedCart = JSON.parse(bill.cart_json);
       setCart(parsedCart);
-      setCustomerName(bill.customer_name || 'Walk-in Customer');
+      setCustomerName(bill.customer_name === 'Guest' || bill.customer_name === 'Walk-in Customer' ? '' : (bill.customer_name || ''));
       setNotes(bill.note || '');
       await api.delete(`/sales/held/${bill.id}`);
       setShowHeldModal(false);
@@ -397,8 +416,8 @@ export default function PosScreen({ user, counterName }) {
       }
 
       const payload = {
-        customer_name: customerName,
-        customer_phone: customerPhone,
+        customer_name: customerName.trim() || 'Guest',
+        customer_phone: customerPhone.trim() || '--------------',
         items: cart.map(item => ({
           product_id: item.product_id,
           phone_unit_id: item.phone_unit_id || null,
@@ -428,8 +447,8 @@ export default function PosScreen({ user, counterName }) {
       setCart([]);
       setDiscountAmount(0);
       setNotes('');
-      setCustomerName('Walk-in Customer');
-      setCustomerPhone('--------------');
+      setCustomerName('');
+      setCustomerPhone('');
       setCashAmount('');
       setOnlineAmount('');
 
@@ -488,12 +507,12 @@ export default function PosScreen({ user, counterName }) {
         {/* Cart Items Table */}
         <div className="flex-1 bg-slate-900/80 border border-slate-800 rounded-2xl flex flex-col overflow-hidden shadow-xl min-h-[360px]">
           {/* Table Header */}
-          <div className="px-5 py-3 border-b border-slate-800 bg-slate-950/60 flex items-center justify-between text-xs font-bold text-slate-400 uppercase tracking-wider">
-            <div className="flex-1">Item Details</div>
-            <div className="w-28 text-center">Quantity</div>
-            <div className="w-28 text-right">Unit Price</div>
-            <div className="w-28 text-right">Total</div>
-            <div className="w-12 text-center">Action</div>
+          <div className="px-5 py-3 border-b border-slate-800 bg-slate-950/60 flex items-center gap-3 text-xs font-bold text-slate-400 uppercase tracking-wider">
+            <div className="flex-1 min-w-0">Item Details</div>
+            <div className="w-28 text-center shrink-0">Quantity</div>
+            <div className="w-28 text-right shrink-0">Unit Price</div>
+            <div className="w-28 text-right shrink-0">Total</div>
+            <div className="w-12 text-center shrink-0">Action</div>
           </div>
 
           {/* Table Body */}
@@ -624,14 +643,15 @@ export default function PosScreen({ user, counterName }) {
               type="text"
               value={customerName}
               onChange={(e) => setCustomerName(e.target.value)}
-              placeholder="Customer Name (Walk-in Customer)"
+              placeholder="Guest"
               className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-emerald-500"
             />
             <input
               type="text"
               value={customerPhone}
-              onChange={(e) => setCustomerPhone(e.target.value)}
-              placeholder="Phone Number (e.g. 0300-1234567)"
+              onChange={handlePhoneChange}
+              placeholder="0300-0000000"
+              maxLength={12}
               className="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-2 text-sm text-slate-100 placeholder:text-slate-500 font-mono focus:outline-none focus:border-emerald-500"
             />
           </div>

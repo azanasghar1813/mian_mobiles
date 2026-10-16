@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { api, setToken, setCurrentUser } from '../api';
 import { playScanBeep, playErrorBuzzer, playSuccessChime } from '../utils/audio';
 import { Lock, User, KeyRound, ShieldCheck, X } from 'lucide-react';
@@ -11,12 +11,15 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
-  if (!isOpen) return null;
-
   const handlePinDigit = (digit) => {
-    if (pin.length < 6) {
+    if (loading) return;
+    if (pin.length < 4) {
       playScanBeep();
-      setPin(prev => prev + digit);
+      const nextPin = pin + digit;
+      setPin(nextPin);
+      if (nextPin.length === 4) {
+        handlePinSubmit(null, nextPin);
+      }
     }
   };
 
@@ -28,14 +31,15 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
     setPin('');
   };
 
-  const handlePinSubmit = async (e) => {
+  const handlePinSubmit = async (e, pinToSubmit) => {
     if (e) e.preventDefault();
-    if (!pin) return;
+    const activePin = pinToSubmit !== undefined ? pinToSubmit : pin;
+    if (!activePin || activePin.length < 4 || loading) return;
     setError('');
     setLoading(true);
 
     try {
-      const res = await api.post('/auth/login', { pin });
+      const res = await api.post('/auth/login', { pin: activePin });
       setToken(res.token);
       setCurrentUser(res.user);
       playSuccessChime();
@@ -49,6 +53,42 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
       setLoading(false);
     }
   };
+
+  // Enable physical keyboard input (Numpad, number row, Backspace, Enter, Esc)
+  useEffect(() => {
+    if (!isOpen || tab !== 'pin') return;
+
+    const handleKeyDown = (e) => {
+      // Don't intercept if an actual input element is focused
+      if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+
+      if (e.key >= '0' && e.key <= '9') {
+        e.preventDefault();
+        handlePinDigit(e.key);
+      } else if (e.key === 'Backspace') {
+        e.preventDefault();
+        handlePinBackspace();
+      } else if (e.key === 'Delete') {
+        e.preventDefault();
+        handlePinClear();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        if (pin.length > 0) {
+          handlePinClear();
+        } else if (onClose) {
+          onClose();
+        }
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (pin.length >= 4) {
+          handlePinSubmit(null, pin);
+        }
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, tab, pin, loading, onClose]);
 
   const handleCredentialsSubmit = async (e) => {
     e.preventDefault();
@@ -74,6 +114,8 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
       setLoading(false);
     }
   };
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm p-4">
@@ -128,14 +170,18 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
         {tab === 'pin' && (
           <div className="p-6">
             <div className="text-center mb-6">
-              <p className="text-xs text-slate-400 mb-2">Enter Cashier (0000) or Admin (1234) PIN</p>
+              <p className="text-xs text-slate-400 mb-1">Enter Cashier (0000) or Admin (1234) PIN</p>
+              <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-emerald-500/10 text-[11px] text-emerald-400 font-medium mb-3 border border-emerald-500/20">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                Keyboard & Numpad Active
+              </div>
               <div className="flex justify-center gap-3">
                 {[0, 1, 2, 3].map((idx) => (
                   <div
                     key={idx}
                     className={`w-12 h-12 rounded-xl border flex items-center justify-center text-xl font-bold transition-all ${
                       pin.length > idx
-                        ? 'border-emerald-500 bg-emerald-500/20 text-emerald-400 shadow-lg shadow-emerald-500/20'
+                        ? 'border-emerald-500 bg-emerald-500/20 text-emerald-400 shadow-lg shadow-emerald-500/20 scale-105'
                         : 'border-slate-800 bg-slate-950/60 text-slate-600'
                     }`}
                   >
@@ -201,6 +247,7 @@ export default function LoginModal({ isOpen, onClose, onLoginSuccess }) {
                 <User className="w-4 h-4 absolute left-3 top-3.5 text-slate-500" />
                 <input
                   type="text"
+                  autoFocus
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
                   placeholder="admin or cashier"

@@ -127,7 +127,7 @@ export default function Receipt({ sale, isPreview = false }) {
         <div style={{ display: 'flex' }}>
           <span style={{ width: '85px' }}>Customer</span>
           <span style={{ width: '12px' }}>:</span>
-          <span>{sale.customer_name || 'Walk-in Customer'}</span>
+          <span>{(!sale.customer_name || sale.customer_name === 'Walk-in Customer') ? 'Guest' : sale.customer_name}</span>
         </div>
         <div style={{ display: 'flex' }}>
           <span style={{ width: '85px' }}>Phone</span>

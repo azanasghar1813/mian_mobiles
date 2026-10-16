@@ -14,7 +14,9 @@ import {
   LogOut,
   UserCheck,
   Clock,
-  Laptop
+  Laptop,
+  Moon,
+  Sun
 } from 'lucide-react';
 import { api } from '../api';
 
@@ -24,7 +26,9 @@ export default function Navbar({
   user,
   onSwitchUser,
   counterName,
-  setCounterName
+  setCounterName,
+  theme,
+  toggleTheme
 }) {
   const [lanInfo, setLanInfo] = useState(null);
   const [currentTime, setCurrentTime] = useState(new Date());
@@ -87,8 +91,28 @@ export default function Navbar({
           </div>
         </div>
 
-        {/* Right Info: LAN IP, Live Clock, Cashier User Badge */}
-        <div className="flex items-center gap-4">
+        {/* Right Info: Theme Switcher, LAN IP, Live Clock, Cashier User Badge */}
+        <div className="flex items-center gap-3">
+          {/* Theme Switcher (Moon / Sun) */}
+          <button
+            onClick={toggleTheme}
+            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800/80 hover:bg-slate-700/80 text-slate-300 hover:text-amber-400 border border-slate-700/60 transition-all cursor-pointer shadow-sm select-none"
+            title={theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            aria-label="Toggle Theme"
+          >
+            {theme === 'dark' ? (
+              <>
+                <Moon className="w-3.5 h-3.5 text-amber-300 fill-amber-300/20" />
+                <span className="font-semibold text-[11px] text-slate-300">Dark</span>
+              </>
+            ) : (
+              <>
+                <Sun className="w-3.5 h-3.5 text-amber-500 fill-amber-500/20" />
+                <span className="font-semibold text-[11px] text-slate-700">Light</span>
+              </>
+            )}
+          </button>
+
           {/* LAN Connection helper */}
           <button
             onClick={() => setShowLanModal(true)}

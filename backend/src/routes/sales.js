@@ -24,7 +24,7 @@ function getNextBillNo() {
 router.post('/', verifyToken, (req, res) => {
   const {
     customer_id,
-    customer_name = 'Walk-in Customer',
+    customer_name = 'Guest',
     customer_phone = '--------------',
     items, // array of { product_id, phone_unit_id, imei1, qty, price, discount }
     subtotal,
@@ -71,11 +71,12 @@ router.post('/', verifyToken, (req, res) => {
       }
 
       // Check customer requirements for credit/balance
+      const isGenericGuest = !customer_name || customer_name === 'Guest' || customer_name === 'Walk-in Customer';
       let resolvedCustomerId = customer_id ? parseInt(customer_id) : null;
       if (finalBalance > 0) {
-        if (!resolvedCustomerId || customer_name === 'Walk-in Customer') {
+        if (!resolvedCustomerId || isGenericGuest) {
           // If customer has unpaid balance, we need a registered customer or create one
-          if (customer_phone && customer_phone !== '--------------' && customer_name !== 'Walk-in Customer') {
+          if (customer_phone && customer_phone !== '--------------' && !isGenericGuest) {
             const custRes = db.prepare(`
               INSERT INTO customers (name, phone, balance) VALUES (?, ?, ?)
             `).run(customer_name, customer_phone, finalBalance);
@@ -441,7 +442,7 @@ router.post('/hold', verifyToken, (req, res) => {
   const result = db.prepare(`
     INSERT INTO held_bills (cashier_id, customer_name, cart_json, note)
     VALUES (?, ?, ?, ?)
-  `).run(req.user.id, customer_name || 'Walk-in Customer', JSON.stringify(cart), note || null);
+  `).run(req.user.id, customer_name || 'Guest', JSON.stringify(cart), note || null);
 
   res.status(201).json({ id: result.lastInsertRowid, message: 'Cart held successfully' });
 });

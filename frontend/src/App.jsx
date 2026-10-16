@@ -21,6 +21,26 @@ export default function App() {
     return localStorage.getItem('mian_mobiles_counter') || 'Counter 1 (Server)';
   });
 
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('mian_mobiles_theme') || 'dark';
+  });
+
+  useEffect(() => {
+    const root = document.documentElement;
+    if (theme === 'light') {
+      root.classList.add('light');
+      root.classList.remove('dark');
+    } else {
+      root.classList.add('dark');
+      root.classList.remove('light');
+    }
+    localStorage.setItem('mian_mobiles_theme', theme);
+  }, [theme]);
+
+  const toggleTheme = () => {
+    setTheme(prev => prev === 'dark' ? 'light' : 'dark');
+  };
+
   const handleSetCounter = (name) => {
     setCounterName(name);
     localStorage.setItem('mian_mobiles_counter', name);
@@ -57,6 +77,8 @@ export default function App() {
         onSwitchUser={handleSwitchUser}
         counterName={counterName}
         setCounterName={handleSetCounter}
+        theme={theme}
+        toggleTheme={toggleTheme}
       />
 
       {/* Main Content Area */}
